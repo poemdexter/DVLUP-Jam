@@ -68,5 +68,14 @@ TextureImporter:
         height: 4
       alignment: 0
       pivot: {x: .5, y: .5}
+    - name: tile_bush
+      rect:
+        serializedVersion: 2
+        x: 288
+        y: 623
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
   spritePackingTag: 
   userData: 
