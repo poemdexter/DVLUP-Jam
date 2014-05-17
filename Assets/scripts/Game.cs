@@ -8,14 +8,14 @@ public enum Type
     Empty,
     P_Knight,
     E_Knight,
-	P_Archer,
-	E_Archer
+    P_Archer,
+    E_Archer
 }
 public class Game : MonoBehaviour
 {
     private int[][] level;
     private int width = 14;
-	private int height = 8;
+    private int height = 8;
 
     private bool gameStarted = false;
     public float tickTime;
@@ -23,6 +23,12 @@ public class Game : MonoBehaviour
     public float tickMoveDelay;
 
     private List<GameObject> mobs;
+
+    public GameObject[] playerPrefabs;
+    private GameObject nextPrefab;
+    private Vector2 nextPrefabPosition;
+    private bool playerTouchedPrefab;
+
 
     void Start()
     {
@@ -51,7 +57,7 @@ public class Game : MonoBehaviour
     // game tick
     private void Tick()
     {
-		SpawnEnemy (1);
+        SpawnEnemy(1);
         // - check enemies can move and move enemies
         EnemyMovement();
         // - small delay
@@ -61,6 +67,8 @@ public class Game : MonoBehaviour
         // - apply damage then resolve damage
         CheckDamage();
         ResolveDamage();
+        // - field the player's next prefab if touched and let go
+        FieldPlayerPrefab();
     }
 
     private void EnemyMovement()
@@ -174,20 +182,29 @@ public class Game : MonoBehaviour
         }
     }
 
-	private void SpawnEnemy(int numberToSpawn)
-	{	
-		int lastSpawn = 8;
-		int spawnRow;
+    private void FieldPlayerPrefab()
+    {
+        if (playerTouchedPrefab) {
+            playerTouchedPrefab = false;
 
-		for (int x = 0; x < numberToSpawn; x++) {
-			spawnRow = Random.Range(0, 7);									//Sets enemy to spawn at random row
-			if(spawnRow != lastSpawn){										//Needs to be changed to reroll position if there is a mob already there
-				GameObject go = Instantiate(E_Knight, new Vector2((width-1), spawnRow));
-				mobs.Add (go);
-				lastSpawn = spawnRow;
-			}
-		}
-	}
+            // TODO: spawn
+        }
+    }
+
+    private void SpawnEnemy(int numberToSpawn)
+    {	
+        int lastSpawn = 8;
+        int spawnRow;
+
+        for (int x = 0; x < numberToSpawn; x++) {
+            spawnRow = Random.Range(0, 7);									    //Sets enemy to spawn at random row
+            if (spawnRow != lastSpawn) {										//Needs to be changed to reroll position if there is a mob already there
+//                GameObject go = Instantiate(E_Knight, new Vector2((width - 1), spawnRow));
+//                mobs.Add(go);
+                lastSpawn = spawnRow;
+            }
+        }
+    }
 
     void Update()
     {
@@ -197,5 +214,16 @@ public class Game : MonoBehaviour
                 Tick();
             }
         }
+    }
+
+    public void HandleTouch(Vector2 direction)
+    {
+        // TODO: check if valid
+        nextPrefab.transform.Translate(direction);
+    }
+
+    public void CompleteTouch()
+    {
+        playerTouchedPrefab = true;
     }
 }

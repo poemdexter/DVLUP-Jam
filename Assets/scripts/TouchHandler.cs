@@ -3,9 +3,13 @@ using System.Collections;
 
 public class TouchHandler : MonoBehaviour
 {
-    public float deadZone;
-    private bool isTouching = false;
     private Vector3 startPosition;
+    private Game game;
+
+    void Start()
+    {
+        game = GameObject.FindGameObjectWithTag("GameController").GetComponent<Game>();
+    }
 
     void Update()
     {
@@ -16,15 +20,19 @@ public class TouchHandler : MonoBehaviour
             // drag
             if (touch.phase == TouchPhase.Began) {
                 startPosition = Camera.main.ScreenToWorldPoint(touch.position);
-                isTouching = true;
+            
             } else if (touch.phase == TouchPhase.Moved) {
                 Vector3 position = Camera.main.ScreenToWorldPoint(touch.position);
-                if (Mathf.Abs(position.y - startPosition.y) >= 1) {
-                    Debug.Log("moved 1");
+                if (position.y - startPosition.y >= 1) {
+                    game.HandleTouch(Vector2.up);
+                    startPosition = position;
+                } else if (position.y - startPosition.y <= -1) {
+                    game.HandleTouch(-Vector2.up);
                     startPosition = position;
                 }
+            
             } else if (touch.phase == TouchPhase.Ended) {
-                isTouching = false;
+                game.CompleteTouch();
             }
         }
     }
