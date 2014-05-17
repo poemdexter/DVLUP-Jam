@@ -7,13 +7,15 @@ public enum Type
 {
     Empty,
     P_Knight,
-    E_Knight
+    E_Knight,
+	P_Archer,
+	E_Archer
 }
 public class Game : MonoBehaviour
 {
     private int[][] level;
     private int width = 14;
-    private int height = 8;
+	private int height = 8;
 
     private bool gameStarted = false;
     public float tickTime;
@@ -49,6 +51,7 @@ public class Game : MonoBehaviour
     // game tick
     private void Tick()
     {
+		SpawnEnemy (1);
         // - check enemies can move and move enemies
         EnemyMovement();
         // - small delay
@@ -170,6 +173,21 @@ public class Game : MonoBehaviour
             Destroy(deadMobs[i]);
         }
     }
+
+	private void SpawnEnemy(int numberToSpawn)
+	{	
+		int lastSpawn = 8;
+		int spawnRow;
+
+		for (int x = 0; x < numberToSpawn; x++) {
+			spawnRow = Random.Range(0, 7);									//Sets enemy to spawn at random row
+			if(spawnRow != lastSpawn){										//Needs to be changed to reroll position if there is a mob already there
+				GameObject go = Instantiate(E_Knight, new Vector2((width-1), spawnRow));
+				mobs.Add (go);
+				lastSpawn = spawnRow;
+			}
+		}
+	}
 
     void Update()
     {
