@@ -146,7 +146,11 @@ public class Game : MonoBehaviour
     private void ApplyDamage(Mob m1, Mob m2)
     {
         m1.health -= m2.damage;
-        m2.damage -= m1.damage;
+        m1.hasAttacked = true;
+        if (!m2.hasAttacked) {
+            m2.damage -= m1.damage;
+            m2.hasAttacked = true;
+        }
     }
     
     private void ResolveDamage()
