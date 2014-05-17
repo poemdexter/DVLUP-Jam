@@ -84,7 +84,7 @@ public class Game : MonoBehaviour
                 if (level[x][y] != (int)Type.Empty) {                           // not empty
                     var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                     if (!mob.GetComponent<Mob>().isPlayer) {                    // got enemy
-                        if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty) {  // not lose state && space to left empty
+                        if (x > 0 && level[x - 1][y] == (int)Type.Empty) {  // not lose state && space to left empty
                             level[x - 1][y] = level[x][y];                      // move enemy in array
                             level[x][y] = (int)Type.Empty;                      // set old space to empty
                             MoveMob(new Vector2(x, y));                         // move the gameobject
