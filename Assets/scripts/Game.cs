@@ -22,6 +22,9 @@ public class Game : MonoBehaviour
     private float currentTime;
     public float tickMoveDelay;
 
+	public GameObject enemyKnight;
+	public GameObject enemyArcher;
+
     private List<GameObject> mobs;
 
     void Start()
@@ -51,7 +54,7 @@ public class Game : MonoBehaviour
     // game tick
     private void Tick()
     {
-		SpawnEnemy (1);
+		SpawnEnemy (2);
         // - check enemies can move and move enemies
         EnemyMovement();
         // - small delay
@@ -176,13 +179,25 @@ public class Game : MonoBehaviour
 
 	private void SpawnEnemy(int numberToSpawn)
 	{	
+		// Dirty jam code, clean up later
 		int lastSpawn = 8;
-		int spawnRow;
+		int spawnRow = 0;			
+		int typeToSpawn;		// rolls a random number to pick the enemy to spawn
+		GameObject enemy = enemyKnight;
 
 		for (int x = 0; x < numberToSpawn; x++) {
-			spawnRow = Random.Range(0, 7);									//Sets enemy to spawn at random row
+			typeToSpawn = Random.Range (1,3);
+			if(typeToSpawn < 3)
+				enemy = enemyKnight;
+			if(typeToSpawn == 3)
+				enemy = enemyArcher;
+
+			spawnRow = Random.Range (0, 7);
+			while(spawnRow == lastSpawn){
+				spawnRow = Random.Range(0, 7);									//Sets enemy to spawn at random row
+			}
 			if(spawnRow != lastSpawn){										//Needs to be changed to reroll position if there is a mob already there
-				GameObject go = Instantiate(E_Knight, new Vector2((width-1), spawnRow));
+				GameObject go = (GameObject)Instantiate(enemy, new Vector2((width-1), -spawnRow), Quaternion.identity);
 				mobs.Add (go);
 				lastSpawn = spawnRow;
 			}
