@@ -99,8 +99,7 @@ public class Game : MonoBehaviour
         float t = tickMoveDelay;
         if ((t -= Time.deltaTime) > 0)
             yield return 0;
-
-        return 0;
+        yield return 1;
     }
 
     void Update()
