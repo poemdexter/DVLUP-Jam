@@ -39,6 +39,7 @@ public class Game : MonoBehaviour
         InitLevel();
         mobs = new List<GameObject>();
         gameStarted = true;
+        FieldPlayerPrefab();
     }
 
     private void InitLevel()
@@ -80,11 +81,15 @@ public class Game : MonoBehaviour
     {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (level[x][y] == (int)Type.E_Knight) {                    // got enemy
-                    if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty) {  // not lose state && space to left empty
-                        level[x - 1][y] = (int)Type.E_Knight;               // move enemy in array
-                        level[x][y] = (int)Type.Empty;                      // set old space to empty
-                        MoveMob(new Vector2(x, y));                         // move the gameobject
+                if (level[x][y] != (int)Type.Empty) {                           // not empty
+                    var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                    if (!mob.GetComponent<Mob>().isPlayer) {                    // got enemy
+                        if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty) {  // not lose state && space to left empty
+                            level[x - 1][y] = level[x][y];                      // move enemy in array
+                            level[x][y] = (int)Type.Empty;                      // set old space to empty
+                            MoveMob(new Vector2(x, y));                         // move the gameobject
+                            mob.GetComponent<Mob>().gridPosition = new Vector2(x - 1, y);
+                        }
                     }
                 }
             }
@@ -95,11 +100,15 @@ public class Game : MonoBehaviour
     {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (level[x][y] == (int)Type.P_Knight) {                            // got player
-                    if (x + 1 < width - 1 && level[x + 1][y] == (int)Type.Empty) {  // not win state && space to left empty
-                        level[x + 1][y] = (int)Type.P_Knight;                       // move enemy in array
-                        level[x][y] = (int)Type.Empty;                              // set old space to empty
-                        MoveMob(new Vector2(x, y));                                 // move the gameobject
+                if (level[x][y] != (int)Type.Empty) {                                   // not empty
+                    var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                    if (mob.GetComponent<Mob>().isPlayer) {                             // got player
+                        if (x + 1 < width - 1 && level[x + 1][y] == (int)Type.Empty) {  // not win state && space to left empty
+                            level[x + 1][y] = level[x][y];                              // move enemy in array
+                            level[x][y] = (int)Type.Empty;                              // set old space to empty
+                            MoveMob(new Vector2(x, y));                                 // move the gameobject
+                            mob.GetComponent<Mob>().gridPosition = new Vector2(x - 1, y);
+                        }
                     }
                 }
             }
@@ -124,7 +133,7 @@ public class Game : MonoBehaviour
     {
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (level[x][y] != 0) { // not empty
+                if (level[x][y] != (int)Type.Empty) { // not empty
                     var m1 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                     Mob mob1 = m1.GetComponent<Mob>();
 
@@ -189,12 +198,16 @@ public class Game : MonoBehaviour
 
     private void FieldPlayerPrefab()
     {
+        if (nextPrefab == null) { // instantiate prefab
+            int r = Random.Range(0, playerPrefabs.Count());
+            Instantiate(playerPrefabs[r], new Vector2(1, -4), Quaternion.identity);
+        }
+
         if (playerTouchedPrefab) {
             playerTouchedPrefab = false;
-
-            // TODO: spawn
         }
     }
+
     private void SpawnEnemy(int numberToSpawn)
     {	
         // Dirty jam code, clean up later
@@ -204,21 +217,25 @@ public class Game : MonoBehaviour
         GameObject enemy = enemyKnight;
 
         for (int x = 0; x < numberToSpawn; x++) {
-            typeToSpawn = Random.Range(1, 3);
+            typeToSpawn = Random.Range(0, 4);
             if (typeToSpawn < 3)
                 enemy = enemyKnight;
             if (typeToSpawn == 3)
                 enemy = enemyArcher;
 
-            spawnRow = Random.Range(0, 7);
+            spawnRow = Random.Range(0, 8);
             while (spawnRow == lastSpawn) {
-                spawnRow = Random.Range(0, 7);									//Sets enemy to spawn at random row
-            }
-            if (spawnRow != lastSpawn) {										//Needs to be changed to reroll position if there is a mob already there
-                GameObject go = (GameObject)Instantiate(enemy, new Vector2((width - 1), -spawnRow), Quaternion.identity);
-                mobs.Add(go);
-                lastSpawn = spawnRow;
-            }
+                spawnRow = Random.Range(0, 8);									//Sets enemy to spawn at random row
+            }										
+
+            GameObject go = (GameObject)Instantiate(enemy, new Vector2((width - 1), -spawnRow), Quaternion.identity);
+            go.GetComponent<Mob>().gridPosition = new Vector2(width - 1, spawnRow);
+            mobs.Add(go);
+            lastSpawn = spawnRow;
+            if (enemy == enemyKnight)
+                level[width - 1][spawnRow] = (int)Type.E_Knight;
+            else if (enemy == enemyArcher)
+                level[width - 1][spawnRow] = (int)Type.E_Archer;
         }
     }
 
@@ -234,8 +251,8 @@ public class Game : MonoBehaviour
 
     public void HandleTouch(Vector2 direction)
     {
-        // TODO: check if valid
-        nextPrefab.transform.Translate(direction);
+        if (nextPrefab != null)
+            nextPrefab.transform.Translate(direction);
     }
 
     public void CompleteTouch()
