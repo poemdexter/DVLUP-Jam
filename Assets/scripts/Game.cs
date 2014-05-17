@@ -96,18 +96,21 @@ public class Game : MonoBehaviour
         }
     }
 
+    // FIXME
     private void PlayerMovement()
     {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int x = width -1; x >= 0; x--) {
+            for (int y = height -1; y >= 0; y--) {
                 if (level[x][y] != (int)Type.Empty) {                                   // not empty
                     var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                     if (mob.GetComponent<Mob>().isPlayer) {                             // got player
+                        Debug.Log("ha");
                         if (x + 1 < width - 1 && level[x + 1][y] == (int)Type.Empty) {  // not win state && space to left empty
                             level[x + 1][y] = level[x][y];                              // move enemy in array
                             level[x][y] = (int)Type.Empty;                              // set old space to empty
                             MoveMob(new Vector2(x, y));                                 // move the gameobject
-                            mob.GetComponent<Mob>().gridPosition = new Vector2(x - 1, y);
+                            Debug.Log("heh");
+                            mob.GetComponent<Mob>().gridPosition = new Vector2(x + 1, y);
                         }
                     }
                 }
