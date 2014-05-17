@@ -8,15 +8,7 @@ public class Movement : MonoBehaviour
 	
     private float currentTime = 0;
 
-    void Update()
-    {
-        if ((currentTime += Time.deltaTime) >= moveDelay) {
-            Move();
-            currentTime = 0;
-        }
-    }
-
-    private void Move()
+    public void Move()
     {
         float direction = (isPlayer) ? 1 : -1;
         transform.Translate(direction * Vector2.right);
