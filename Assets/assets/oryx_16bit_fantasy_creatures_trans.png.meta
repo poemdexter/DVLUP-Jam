@@ -77,5 +77,41 @@ TextureImporter:
         height: 24
       alignment: 0
       pivot: {x: .5, y: .5}
+    - name: char_p_archer_1
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 600
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: char_p_archer_2
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 576
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: char_e_archer_1
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 264
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: char_e_archer_2
+      rect:
+        serializedVersion: 2
+        x: 48
+        y: 240
+        width: 23
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
   spritePackingTag: 
   userData: 
