@@ -55,7 +55,9 @@ public class Game : MonoBehaviour
         StartCoroutine(DelayMove());
         // - check players can move and move players
         PlayerMovement();
-        // - resolve damage
+        // - apply damage then resolve damage
+        CheckDamage();
+        ResolveDamage();
     }
 
     private void EnemyMovement()
@@ -100,6 +102,69 @@ public class Game : MonoBehaviour
         if ((t -= Time.deltaTime) > 0)
             yield return 0;
         yield return 1;
+    }
+
+    private void CheckDamage()
+    {
+        for (int x = 0; x < width; x++) {
+            for (int y = 0; y < height; y++) {
+                if (level[x][y] != 0) { // not empty
+                    var m1 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                    Mob mob1 = m1.GetComponent<Mob>();
+
+                    // hasn't attacked yet
+                    if (!mob1.hasAttacked) {
+                        // is a player
+                        if (mob1.isPlayer) {
+                            if (x + 1 < width - 1 && level[x + 1][y] != (int)Type.Empty) {
+                                var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                                Mob mob2 = m2.GetComponent<Mob>();
+                                // attacking an enemy
+                                if (!mob2.isPlayer) {
+                                    // apply damage to each other
+                                    ApplyDamage(mob1, mob2);
+                                }
+                            }
+                            // is a enemy
+                        } else {
+                            if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty) {
+                                var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                                Mob mob2 = m2.GetComponent<Mob>();
+                                // attacking a player
+                                if (mob2.isPlayer) {
+                                    // apply damage to each other
+                                    ApplyDamage(mob1, mob2);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void ApplyDamage(Mob m1, Mob m2)
+    {
+        m1.health -= m2.damage;
+        m2.damage -= m1.damage;
+    }
+    
+    private void ResolveDamage()
+    {
+        List<GameObject> deadMobs = new List<GameObject>();
+        foreach (GameObject mob in mobs) {
+            if (mob.GetComponent<Mob>().health <= 0) {
+                deadMobs.Add(mob);
+            }
+        }
+
+        foreach (GameObject dead in deadMobs) {
+            mobs.Remove(dead);
+        }
+
+        for (int i = deadMobs.Count -1; i >= 0; i--) {
+            Destroy(deadMobs[i]);
+        }
     }
 
     void Update()
