@@ -46,14 +46,17 @@ public class Game : MonoBehaviour
     {
         // create the int[][]
         List<int[]> rows = new List<int[]>();
-        for (int i = 0; i < width; i++) {
+        for (int i = 0; i < width; i++)
+        {
             rows.Add(new int[height]);
         }
         level = rows.ToArray();
 
         // set everything to 0
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
                 level[x][y] = 0;
             }
         }
@@ -79,12 +82,17 @@ public class Game : MonoBehaviour
 
     private void EnemyMovement()
     {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                if (level[x][y] != (int)Type.Empty) {                           // not empty
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (level[x][y] != (int)Type.Empty)                             // not empty
+                {                           
                     var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
-                    if (!mob.GetComponent<Mob>().isPlayer) {                    // got enemy
-                        if (x > 0 && level[x - 1][y] == (int)Type.Empty) {  // not lose state && space to left empty
+                    if (!mob.GetComponent<Mob>().isPlayer)                      // got enemy
+                    {                    
+                        if (x > 0 && level[x - 1][y] == (int)Type.Empty)        // not lose state && space to left empty
+                        {     
                             level[x - 1][y] = level[x][y];                      // move enemy in array
                             level[x][y] = (int)Type.Empty;                      // set old space to empty
                             MoveMob(new Vector2(x, y));                         // move the gameobject
@@ -96,20 +104,22 @@ public class Game : MonoBehaviour
         }
     }
 
-    // FIXME
     private void PlayerMovement()
     {
-        for (int x = width -1; x >= 0; x--) {
-            for (int y = height -1; y >= 0; y--) {
-                if (level[x][y] != (int)Type.Empty) {                                   // not empty
+        for (int x = width - 1; x >= 0; x--)
+        {
+            for (int y = height - 1; y >= 0; y--)
+            {
+                if (level[x][y] != (int)Type.Empty)                                     // not empty
+                {                                   
                     var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
-                    if (mob.GetComponent<Mob>().isPlayer) {                             // got player
-                        Debug.Log("ha");
-                        if (x + 1 < width - 1 && level[x + 1][y] == (int)Type.Empty) {  // not win state && space to left empty
+                    if (mob.GetComponent<Mob>().isPlayer)                               // got player
+                    {                            
+                        if (x + 1 < width - 1 && level[x + 1][y] == (int)Type.Empty)    // not win state && space to left empty
+                        {  
                             level[x + 1][y] = level[x][y];                              // move enemy in array
                             level[x][y] = (int)Type.Empty;                              // set old space to empty
                             MoveMob(new Vector2(x, y));                                 // move the gameobject
-                            Debug.Log("heh");
                             mob.GetComponent<Mob>().gridPosition = new Vector2(x + 1, y);
                         }
                     }
@@ -134,32 +144,40 @@ public class Game : MonoBehaviour
 
     private void CheckDamage()
     {
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                if (level[x][y] != (int)Type.Empty) { // not empty
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                if (level[x][y] != (int)Type.Empty) // not empty
+                {
                     var m1 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                     Mob mob1 = m1.GetComponent<Mob>();
 
-                    // hasn't attacked yet
-                    if (!mob1.hasAttacked) {
-                        // is a player
-                        if (mob1.isPlayer) {
-                            if (x + 1 < width - 1 && level[x + 1][y] != (int)Type.Empty) {
+                    if (!mob1.hasAttacked) // hasn't attacked yet
+                    {
+                        if (mob1.isPlayer) // is a player
+                        {
+                            if (x + 1 < width - 1 && level[x + 1][y] != (int)Type.Empty)
+                            {
                                 var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                                 Mob mob2 = m2.GetComponent<Mob>();
-                                // attacking an enemy
-                                if (!mob2.isPlayer) {
+
+                                if (!mob2.isPlayer) // attacking an enemy
+                                {
                                     // apply damage to each other
                                     ApplyDamage(mob1, mob2);
                                 }
                             }
-                            // is a enemy
-                        } else {
-                            if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty) {
+                        }
+                        else  // is a enemy
+                        {
+                            if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty)
+                            {
                                 var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                                 Mob mob2 = m2.GetComponent<Mob>();
                                 // attacking a player
-                                if (mob2.isPlayer) {
+                                if (mob2.isPlayer)
+                                {
                                     // apply damage to each other
                                     ApplyDamage(mob1, mob2);
                                 }
@@ -175,51 +193,59 @@ public class Game : MonoBehaviour
     {
         m1.health -= m2.damage;
         m1.hasAttacked = true;
-        if (!m2.hasAttacked) {
+        if (!m2.hasAttacked)
+        {
             m2.damage -= m1.damage;
             m2.hasAttacked = true;
         }
     }
-    
+
     private void ResolveDamage()
     {
         List<GameObject> deadMobs = new List<GameObject>();
-        foreach (GameObject mob in mobs) {
-            if (mob.GetComponent<Mob>().health <= 0) {
+        foreach (GameObject mob in mobs)
+        {
+            if (mob.GetComponent<Mob>().health <= 0)
+            {
                 deadMobs.Add(mob);
             }
         }
 
-        foreach (GameObject dead in deadMobs) {
+        foreach (GameObject dead in deadMobs)
+        {
             mobs.Remove(dead);
         }
 
-        for (int i = deadMobs.Count -1; i >= 0; i--) {
+        for (int i = deadMobs.Count - 1; i >= 0; i--)
+        {
             Destroy(deadMobs[i]);
         }
     }
 
     private void FieldPlayerPrefab()
     {
-        if (nextPrefab == null) { // instantiate prefab
+        if (nextPrefab == null)
+        { // instantiate prefab
             int r = Random.Range(0, playerPrefabs.Count());
             Instantiate(playerPrefabs[r], new Vector2(1, -4), Quaternion.identity);
         }
 
-        if (playerTouchedPrefab) {
+        if (playerTouchedPrefab)
+        {
             playerTouchedPrefab = false;
         }
     }
 
     private void SpawnEnemy(int numberToSpawn)
-    {	
+    {
         // Dirty jam code, clean up later
         int lastSpawn = 8;
-        int spawnRow = 0;			
+        int spawnRow = 0;
         int typeToSpawn;		// rolls a random number to pick the enemy to spawn
         GameObject enemy = enemyKnight;
 
-        for (int x = 0; x < numberToSpawn; x++) {
+        for (int x = 0; x < numberToSpawn; x++)
+        {
             typeToSpawn = Random.Range(0, 4);
             if (typeToSpawn < 3)
                 enemy = enemyKnight;
@@ -227,9 +253,10 @@ public class Game : MonoBehaviour
                 enemy = enemyArcher;
 
             spawnRow = Random.Range(0, 8);
-            while (spawnRow == lastSpawn) {
+            while (spawnRow == lastSpawn)
+            {
                 spawnRow = Random.Range(0, 8);									//Sets enemy to spawn at random row
-            }										
+            }
 
             GameObject go = (GameObject)Instantiate(enemy, new Vector2((width - 1), -spawnRow), Quaternion.identity);
             go.GetComponent<Mob>().gridPosition = new Vector2(width - 1, spawnRow);
@@ -244,8 +271,10 @@ public class Game : MonoBehaviour
 
     void Update()
     {
-        if (gameStarted) {
-            if ((currentTime += Time.deltaTime) > tickTime) {
+        if (gameStarted)
+        {
+            if ((currentTime += Time.deltaTime) > tickTime)
+            {
                 currentTime = 0;
                 Tick();
             }
