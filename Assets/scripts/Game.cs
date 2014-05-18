@@ -39,7 +39,6 @@ public class Game : MonoBehaviour
         InitLevel();
         mobs = new List<GameObject>();
         gameStarted = true;
-        FieldPlayerPrefab();
     }
 
     private void InitLevel()
@@ -136,10 +135,7 @@ public class Game : MonoBehaviour
 
     IEnumerator DelayMove()
     {
-        float t = tickMoveDelay;
-        if ((t -= Time.deltaTime) > 0)
-            yield return 0;
-        yield return 1;
+        yield return new WaitForSeconds(.5f);
     }
 
     private void CheckDamage()
@@ -227,7 +223,14 @@ public class Game : MonoBehaviour
         if (nextPrefab == null)
         { // instantiate prefab
             int r = Random.Range(0, playerPrefabs.Count());
-            Instantiate(playerPrefabs[r], new Vector2(1, -4), Quaternion.identity);
+            GameObject go = (GameObject)Instantiate(playerPrefabs[r], new Vector2(0, -7), Quaternion.identity);
+            for (int i = 0; i < go.transform.childCount; i++)
+            {
+                Transform t = go.transform.GetChild(i);
+                t.GetComponent<Mob>().gridPosition = new Vector2(t.position.x, 7 - t.localPosition.y);
+                level[(int)t.position.x][7 - (int)t.localPosition.y] = (int)t.GetComponent<Mob>().type;
+                mobs.Add(t.gameObject);
+            }
         }
 
         if (playerTouchedPrefab)

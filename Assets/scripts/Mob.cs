@@ -11,4 +11,5 @@ public class Mob : MonoBehaviour
     public int damage;
     public bool hasAttacked;
     public bool isPlayer;
+    public Type type;
 }
