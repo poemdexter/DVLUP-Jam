@@ -65,6 +65,8 @@ public class Game : MonoBehaviour
     // game tick
     private void Tick()
     {
+        // - reset has attacked for new round
+        ResetMobsForTick();
         // - field the player's next prefab if touched and let go
         FieldPlayerPrefab();
         // - check enemies can move and move enemies
@@ -78,6 +80,14 @@ public class Game : MonoBehaviour
         ResolveDamage();
         // - field the enemy
         SpawnEnemy(2);
+    }
+
+    private void ResetMobsForTick()
+    {
+        foreach(GameObject mob in mobs)
+        {
+            mob.GetComponent<Mob>().hasAttacked = false;
+        }
     }
 
     private void EnemyMovement()
@@ -135,7 +145,7 @@ public class Game : MonoBehaviour
         m.GetComponent<Movement>().Move();
     }
 
-    IEnumerator DelayMove()
+    private IEnumerator DelayMove()
     {
         yield return new WaitForSeconds(.5f);
     }
@@ -157,7 +167,7 @@ public class Game : MonoBehaviour
                         {
                             if (x + 1 < width - 1 && level[x + 1][y] != (int)Type.Empty)
                             {
-                                var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                                var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x + 1, y));
                                 Mob mob2 = m2.GetComponent<Mob>();
 
                                 if (!mob2.isPlayer) // attacking an enemy
@@ -169,9 +179,9 @@ public class Game : MonoBehaviour
                         }
                         else  // is a enemy
                         {
-                            if (x - 1 > 0 && level[x - 1][y] == (int)Type.Empty)
+                            if (x - 1 > 0 && level[x - 1][y] != (int)Type.Empty)
                             {
-                                var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x, y));
+                                var m2 = mobs.Single(i => i.GetComponent<Mob>().gridPosition == new Vector2(x - 1, y));
                                 Mob mob2 = m2.GetComponent<Mob>();
                                 // attacking a player
                                 if (mob2.isPlayer)
@@ -194,7 +204,7 @@ public class Game : MonoBehaviour
         m1.hasAttacked = true;
         if (!m2.hasAttacked)
         {
-            m2.damage -= m1.damage;
+            m2.health -= m1.damage;
             m2.hasAttacked = true;
         }
     }
@@ -213,6 +223,8 @@ public class Game : MonoBehaviour
 
         foreach (GameObject dead in deadMobs)
         {
+            Vector2 v = dead.GetComponent<Mob>().gridPosition;
+            level[(int)v.x][(int)v.y] = (int)Type.Empty;
             mobs.Remove(dead);
         }
 
