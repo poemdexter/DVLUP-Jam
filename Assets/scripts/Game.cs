@@ -242,13 +242,12 @@ public class Game : MonoBehaviour
             for (int i = 0; i < nextPrefab.transform.childCount; i++)
             {
                 Transform t = nextPrefab.transform.GetChild(i);
-                t.GetComponent<Mob>().gridPosition = new Vector2(t.position.x, (int)(Mathf.Abs(nextPrefab.transform.position.y) - t.localPosition.y));
-
-                // add to level array
-                level[(int)t.position.x][(int)(Mathf.Abs(nextPrefab.transform.position.y) - (int)t.localPosition.y)] = (int)t.GetComponent<Mob>().type;
-
-                // add to mobs list
-                mobs.Add(t.gameObject);
+                int x = (int)t.position.x + (int)nextPrefab.transform.position.x;
+                int y = (int)(Mathf.Abs(nextPrefab.transform.position.y)) - (int)t.localPosition.y;
+                
+                t.GetComponent<Mob>().gridPosition = new Vector2(x, y); // set grid position
+                level[x][y] = (int)t.GetComponent<Mob>().type;          // add to level array
+                mobs.Add(t.gameObject);                                 // add to mob list
             }
             needNextPrefab = true;
             playerTouchedPrefab = false;
@@ -311,7 +310,7 @@ public class Game : MonoBehaviour
     private void PrepareNextPrefab()
     {
         int r = Random.Range(0, playerPrefabs.Count());
-        nextPrefab = (GameObject)Instantiate(playerPrefabs[r], new Vector2(0, -7), Quaternion.identity);
+        nextPrefab = (GameObject)Instantiate(playerPrefabs[r], new Vector2(playerPrefabs[r].transform.position.x, -7), Quaternion.identity);
     }
 
     // move the prefab based on distance travelled on drag

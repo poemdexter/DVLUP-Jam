@@ -116,9 +116,45 @@ TextureImporter:
     - name: tile_cobble
       rect:
         serializedVersion: 2
-        x: 167
+        x: 168
         y: 599
-        width: 25
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: bg_right
+      rect:
+        serializedVersion: 2
+        x: 240
+        y: 383
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: bg_center
+      rect:
+        serializedVersion: 2
+        x: 216
+        y: 383
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: bg_left
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 383
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: .5, y: .5}
+    - name: bg_hud
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 743
+        width: 24
         height: 24
       alignment: 0
       pivot: {x: .5, y: .5}
