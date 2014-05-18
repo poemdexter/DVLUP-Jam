@@ -15,8 +15,8 @@ public enum Type
 public class Game : MonoBehaviour
 {
     private int[][] level;
-    private int width = 14;
-    private int height = 8;
+    public int width = 16;
+    public int height = 8;
 
     private bool gameStarted = false;
     public float tickTime;
