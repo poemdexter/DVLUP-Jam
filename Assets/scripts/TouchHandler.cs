@@ -20,7 +20,8 @@ public class TouchHandler : MonoBehaviour
             // drag
             if (touch.phase == TouchPhase.Began) {
                 startPosition = Camera.main.ScreenToWorldPoint(touch.position);
-            
+                game.StartTouch();
+
             } else if (touch.phase == TouchPhase.Moved) {
                 Vector3 position = Camera.main.ScreenToWorldPoint(touch.position);
                 if (position.y - startPosition.y >= 1) {

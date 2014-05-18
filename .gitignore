@@ -11,5 +11,8 @@
 /*.userprefs
 /*.pidb
 /*.booproj
+
+# UnityVS
 Assets/UnityVS.meta
 Assets/UnityVS
+UnityVS.DVLUP-Jam.sln.DotSettings

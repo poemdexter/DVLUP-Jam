@@ -32,6 +32,7 @@ public class Game : MonoBehaviour
     private GameObject nextPrefab;
     private Vector2 nextPrefabPosition;
     private bool playerTouchedPrefab;
+    private bool needNextPrefab = true;
 
 
     void Start()
@@ -64,6 +65,8 @@ public class Game : MonoBehaviour
     // game tick
     private void Tick()
     {
+        // - field the player's next prefab if touched and let go
+        FieldPlayerPrefab();
         // - check enemies can move and move enemies
         EnemyMovement();
         // - small delay
@@ -75,8 +78,6 @@ public class Game : MonoBehaviour
         ResolveDamage();
         // - field the enemy
         SpawnEnemy(2);
-        // - field the player's next prefab if touched and let go
-        FieldPlayerPrefab();
     }
 
     private void EnemyMovement()
@@ -86,12 +87,12 @@ public class Game : MonoBehaviour
             for (int y = 0; y < height; y++)
             {
                 if (level[x][y] != (int)Type.Empty)                             // not empty
-                {                           
+                {
                     var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                     if (!mob.GetComponent<Mob>().isPlayer)                      // got enemy
-                    {                    
+                    {
                         if (x > 0 && level[x - 1][y] == (int)Type.Empty)        // not lose state && space to left empty
-                        {     
+                        {
                             level[x - 1][y] = level[x][y];                      // move enemy in array
                             level[x][y] = (int)Type.Empty;                      // set old space to empty
                             MoveMob(new Vector2(x, y));                         // move the gameobject
@@ -110,12 +111,12 @@ public class Game : MonoBehaviour
             for (int y = height - 1; y >= 0; y--)
             {
                 if (level[x][y] != (int)Type.Empty)                                     // not empty
-                {                                   
+                {
                     var mob = mobs.Single(m => m.GetComponent<Mob>().gridPosition == new Vector2(x, y));
                     if (mob.GetComponent<Mob>().isPlayer)                               // got player
-                    {                            
+                    {
                         if (x + 1 < width - 1 && level[x + 1][y] == (int)Type.Empty)    // not win state && space to left empty
-                        {  
+                        {
                             level[x + 1][y] = level[x][y];                              // move enemy in array
                             level[x][y] = (int)Type.Empty;                              // set old space to empty
                             MoveMob(new Vector2(x, y));                                 // move the gameobject
@@ -127,6 +128,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    // move mob on field of play
     private void MoveMob(Vector2 mobPosition)
     {
         var m = mobs.Single(mob => mob.GetComponent<Mob>().gridPosition == mobPosition);
@@ -185,6 +187,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    // mobs hit each other (apply damage to hitpoints)
     private void ApplyDamage(Mob m1, Mob m2)
     {
         m1.health -= m2.damage;
@@ -196,6 +199,7 @@ public class Game : MonoBehaviour
         }
     }
 
+    // after damage dealt, destroy mobs
     private void ResolveDamage()
     {
         List<GameObject> deadMobs = new List<GameObject>();
@@ -218,23 +222,23 @@ public class Game : MonoBehaviour
         }
     }
 
+    // actually place the player prefab into the game world
     private void FieldPlayerPrefab()
     {
-        if (nextPrefab == null)
-        { // instantiate prefab
-            int r = Random.Range(0, playerPrefabs.Count());
-            GameObject go = (GameObject)Instantiate(playerPrefabs[r], new Vector2(0, -7), Quaternion.identity);
-            for (int i = 0; i < go.transform.childCount; i++)
+        if (playerTouchedPrefab && !needNextPrefab)
+        {
+            for (int i = 0; i < nextPrefab.transform.childCount; i++)
             {
-                Transform t = go.transform.GetChild(i);
-                t.GetComponent<Mob>().gridPosition = new Vector2(t.position.x, 7 - t.localPosition.y);
-                level[(int)t.position.x][7 - (int)t.localPosition.y] = (int)t.GetComponent<Mob>().type;
+                Transform t = nextPrefab.transform.GetChild(i);
+                t.GetComponent<Mob>().gridPosition = new Vector2(t.position.x, (int)(Mathf.Abs(nextPrefab.transform.position.y) - t.localPosition.y));
+
+                // add to level array
+                level[(int)t.position.x][(int)(Mathf.Abs(nextPrefab.transform.position.y) - (int)t.localPosition.y)] = (int)t.GetComponent<Mob>().type;
+
+                // add to mobs list
                 mobs.Add(t.gameObject);
             }
-        }
-
-        if (playerTouchedPrefab)
-        {
+            needNextPrefab = true;
             playerTouchedPrefab = false;
         }
     }
@@ -244,7 +248,7 @@ public class Game : MonoBehaviour
         // Dirty jam code, clean up later
         int lastSpawn = 8;
         int spawnRow = 0;
-        int typeToSpawn;		// rolls a random number to pick the enemy to spawn
+        int typeToSpawn;    // rolls a random number to pick the enemy to spawn
         GameObject enemy = enemyKnight;
 
         for (int x = 0; x < numberToSpawn; x++)
@@ -258,7 +262,7 @@ public class Game : MonoBehaviour
             spawnRow = Random.Range(0, 8);
             while (spawnRow == lastSpawn)
             {
-                spawnRow = Random.Range(0, 8);									//Sets enemy to spawn at random row
+                spawnRow = Random.Range(0, 8);  //Sets enemy to spawn at random row
             }
 
             GameObject go = (GameObject)Instantiate(enemy, new Vector2((width - 1), -spawnRow), Quaternion.identity);
@@ -282,14 +286,36 @@ public class Game : MonoBehaviour
                 Tick();
             }
         }
+
+        // spawn another player prefab
+        if (needNextPrefab)
+        {
+            needNextPrefab = false;
+            PrepareNextPrefab();
+        }
     }
 
+    // spawn us a player prefab
+    private void PrepareNextPrefab()
+    {
+        int r = Random.Range(0, playerPrefabs.Count());
+        nextPrefab = (GameObject)Instantiate(playerPrefabs[r], new Vector2(0, -7), Quaternion.identity);
+    }
+
+    // move the prefab based on distance travelled on drag
     public void HandleTouch(Vector2 direction)
     {
         if (nextPrefab != null)
             nextPrefab.transform.Translate(direction);
     }
 
+    // if we lift and touch again on same move, make sure we aren't placing on field
+    public void StartTouch()
+    {
+        playerTouchedPrefab = false;
+    }
+
+    // when we're done touching (lift finger) flag prefab as ready to field
     public void CompleteTouch()
     {
         playerTouchedPrefab = true;
